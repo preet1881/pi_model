@@ -7,7 +7,7 @@ Read "https://arxiv.org/abs/1610.02242" for better understanding
 # Goals to be achieved 
 Improve the accuracy of the model by adding gaussian noise , transforms <br /> 
 Run the code on CIFAR10 dataset and SVHN dataset <br /> 
-Get the norm of the losses and figure out a better algorithm <br /> 
+Get the norm of the gradient and figure out a better algorithm <br /> 
 
 
 
