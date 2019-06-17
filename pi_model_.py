@@ -152,14 +152,14 @@ def train( model , seed , labeled_data =4000 , alpha =0.6 , lr = 0.002 , beta2 =
                    torch.save({'state_dict': model.state_dict()}, 'model_best.csv')
 
 
-
+           model.eval()
            acc = calc_metrics(model, test_loader)
            if print_res:
                print('Accuracy of the network on the 10000 test images: %.2f %%' % (acc))
 
            checkpoint = torch.load('model_best.csv')
            model.load_state_dict(checkpoint['state_dict'])
-
+           model.eval()
            acc_best = calc_metrics(model, test_loader)
            if print_res:
                print('Accuracy of the network (best model) on the 10000 test images: %.2f %%' % (acc_best))
