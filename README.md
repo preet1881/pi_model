@@ -5,7 +5,7 @@ the model for now works on MNIST dataset , this model has framework taken from h
 Read "https://arxiv.org/abs/1610.02242" for better understanding  
 
 # ABOUT THE CODE
-the code runs on cifar10 dataset, cifar10 augmentation and zca is left
+the code runs on cifar10 dataset, cifar10 augmentation and zca is left according to paper .
 
 # Goals to be achieved 
 Improve the accuracy of the model by adding gaussian noise , transforms <br /> 
