@@ -14,7 +14,7 @@ import torchvision.transforms as tf
 
 #right now gaussian noise is not adding any noise just returning x as it is
 class GaussianNoise(nn.Module):
-    def __init__(self,batch_size,input_shape = (1,28,28), std = 0.05):
+    def __init__(self,batch_size,input_shape = (3,32,32), std = 0.05):
         super(GaussianNoise,self).__init__()
         self.shape = (batch_size,) + input_shape
         self.noise = Variable(torch.zeros(self.shape))
@@ -22,7 +22,7 @@ class GaussianNoise(nn.Module):
 
     def forward(self,x):
         self.noise.data.normal_(0,std=self.std)
-        return x
+        return x + self.noise
 
 
 def prepare_CIFAR10():

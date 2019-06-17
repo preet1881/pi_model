@@ -19,7 +19,8 @@ def sample_train(train_dataset, test_dataset , batch_size ,
                  labeled_data_perclass = labeled_data// n_classes
 
                  for i in range(n_classes):
-                     class_items = (train_dataset.train_labels == i).nonzero()   #for mnist we use train_labels to read the lables but for cifar this gives error
+                     train_dataset.targets = torch.Tensor(train_dataset.targets)
+                     class_items = (train_dataset.targets == i).nonzero()   #for mnist we use train_labels to read the lables but for cifar this gives error
                      n_class = len(class_items)
                      rd = np.random.permutation(np.arange(n_class))
 
@@ -29,7 +30,7 @@ def sample_train(train_dataset, test_dataset , batch_size ,
 
 
                  other = other.long()
-                 train_dataset.train_labels[other] = -1
+                 train_dataset.targets[other] = -1
 
                  train_loader = torch.utils.data.DataLoader(dataset=train_dataset,
                                                            batch_size=batch_size,
@@ -60,6 +61,7 @@ def temporal_loss(out1, out2 , w , labels):
         number_of_labels = len(labels_in_batch)
         if number_of_labels >0 :
             masked_outputs = torch.index_select(out, 0 , labels_in_batch.view(number_of_labels))
+            labels = labels.to(dtype = torch.long)
             masked_labels = labels[cond]
             loss = F.cross_entropy(masked_outputs , masked_labels)
 
@@ -72,14 +74,14 @@ def temporal_loss(out1, out2 , w , labels):
 
 
 #change num_epochs for better training here and in config_ too
-def train( model , seed , labeled_data =100 , alpha =0.6 , lr = 0.002 , beta2 =0.99
-           , num_epochs =10 , batch_size =100, drop =0.5 , std =0.15 , fm1=16 ,fm2 =32, divide_by_bs = False
+def train( model , seed , labeled_data =4000 , alpha =0.6 , lr = 0.002 , beta2 =0.99
+           , num_epochs =150 , batch_size =100, drop =0.5 , std =0.15 , fm1=16 ,fm2 =32, divide_by_bs = False
            , w_norm = False , data_norm= 'pixelwise', early_stop = None, c=300 , n_classes =10 , max_epochs=80,
            max_val= 30. , ramp_up_mult= -5 , n_samples= 60000 , print_res=True , **kwargs):
 
 
            #retrive data
-           train_dataset, test_dataset = prepare_mnist()
+           train_dataset, test_dataset = prepare_CIFAR10()
            ntrain = len(train_dataset)
 
            #make data loaders
@@ -134,9 +136,9 @@ def train( model , seed , labeled_data =100 , alpha =0.6 , lr = 0.002 , beta2 =0
                    #print loss
                    if (epoch+1)%10 ==0:
                        if i+1 ==2 *c :
-                           print('Epoch [%d/%d], Step [%d/%d], Loss :%.6f, Time (this epoch): %.2f s'%(epoch+1, num_epochs, i+1 , len(train_dataset)//batch_size , np.mean(l), timer()-t))
+                           print('Epoch [%d/%d], Step [%d/%d], Loss :%.6f, Time (this epoch): %.2f s'%(epoch+1, num_epochs, i+1 , round(len(train_dataset)//batch_size) , np.mean(l), timer()-t))
                        elif (i+1)%c ==0:
-                           print('Epoch [%d/%d], Step [%d/%d], Loss: %.6f'% (epoch + 1, num_epochs, i + 1, len(train_dataset) // batch_size, np.mean(l)))
+                           print('Epoch [%d/%d], Step [%d/%d], Loss: %.6f'% (epoch + 1, num_epochs, i + 1, round(len(train_dataset) // batch_size), np.mean(l)))
 
 
                eloss =np.mean(l)
