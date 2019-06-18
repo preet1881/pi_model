@@ -75,8 +75,8 @@ def temporal_loss(out1, out2 , w , labels):
 
 #change num_epochs for better training here and in config_ too
 def train( model , seed , labeled_data =4000 , alpha =0.6 , lr = 0.002 , beta2 =0.99
-           , num_epochs =150 , batch_size =100, drop =0.5 , std =0.15 , fm1=16 ,fm2 =32, divide_by_bs = False
-           , w_norm = False , data_norm= 'pixelwise', early_stop = None, c=300 , n_classes =10 , max_epochs=80,
+           , num_epochs =300 , batch_size =100, drop =0.5 , std =0.15 , fm1=16 ,fm2 =32, divide_by_bs = False
+           , w_norm = False , data_norm= 'pixelwise', early_stop = None, c=250 , n_classes =10 , max_epochs=80,
            max_val= 30. , ramp_up_mult= -5 , n_samples= 60000 , print_res=True , **kwargs):
 
 
@@ -118,7 +118,8 @@ def train( model , seed , labeled_data =4000 , alpha =0.6 , lr = 0.002 , beta2 =
                for i , (images,labels) in enumerate(train_loader):
                    images = Variable(images)
                    labels = Variable(labels, requires_grad = False)
-
+                   if i+1==500:
+                       print(epoch+1)
                    #get output and calculate loss
                    optimizer.zero_grad()
                    out = model(images)
@@ -136,9 +137,9 @@ def train( model , seed , labeled_data =4000 , alpha =0.6 , lr = 0.002 , beta2 =
                    #print loss
                    if (epoch+1)%10 ==0:
                        if i+1 ==2 *c :
-                           print('Epoch [%d/%d], Step [%d/%d], Loss :%.6f, Time (this epoch): %.2f s'%(epoch+1, num_epochs, i+1 , round(len(train_dataset)//batch_size) , np.mean(l), timer()-t))
+                           print('Epoch [%d/%d], Step [%d/%d], Loss :%.6f, Time (this epoch): %.2f s'%(epoch+1, num_epochs, i+1 , len(train_dataset)//batch_size , np.mean(l), timer()-t))
                        elif (i+1)%c ==0:
-                           print('Epoch [%d/%d], Step [%d/%d], Loss: %.6f'% (epoch + 1, num_epochs, i + 1, round(len(train_dataset) // batch_size), np.mean(l)))
+                           print('Epoch [%d/%d], Step [%d/%d], Loss: %.6f'% (epoch + 1, num_epochs, i + 1, len(train_dataset) // batch_size, np.mean(l)))
 
 
                eloss =np.mean(l)
@@ -156,6 +157,7 @@ def train( model , seed , labeled_data =4000 , alpha =0.6 , lr = 0.002 , beta2 =
            acc = calc_metrics(model, test_loader)
            if print_res:
                print('Accuracy of the network on the 10000 test images: %.2f %%' % (acc))
+
 
            checkpoint = torch.load('model_best.csv')
            model.load_state_dict(checkpoint['state_dict'])

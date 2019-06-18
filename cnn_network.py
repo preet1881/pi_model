@@ -10,23 +10,22 @@ import matplotlib.pyplot as plt
 
 class CNN(nn.Module):
 
-    def __init__(self, batch_size, std, p=0.5, fm1=16, fm2=32):
+    def __init__(self, batch_size, std,p=0.5):
         super(CNN, self).__init__()
-        self.fm1 = fm1
-        self.fm2 = fm2
+
         self.std = std
         self.gn = GaussianNoise(batch_size, std=self.std)
         self.act = nn.LeakyReLU(0.1)
         self.drop = nn.Dropout(p)
-        self.conv1a = nn.Conv2d(3, 128, 3, padding=1)
-        self.conv1b = nn.Conv2d(128, 128, 3, padding=1)
-        self.conv1c = nn.Conv2d(128, 128, 3, padding=1)
-        self.conv2a = nn.Conv2d(128, 256, 3, padding=1)
-        self.conv2b = nn.Conv2d(256, 256, 3, padding=1)
-        self.conv2c = nn.Conv2d(256, 256, 3, padding=1)
-        self.conv3a = nn.Conv2d(256, 512, 3, padding=0)
-        self.conv3b = nn.Conv2d(512, 256, 1, padding=1)
-        self.conv3c = nn.Conv2d(256, 128, 1, padding=1)
+        self.conv1a = weight_norm(nn.Conv2d(3, 128, 3, padding=1))
+        self.conv1b = weight_norm(nn.Conv2d(128, 128, 3, padding=1))
+        self.conv1c = weight_norm(nn.Conv2d(128, 128, 3, padding=1))
+        self.conv2a = weight_norm(nn.Conv2d(128, 256, 3, padding=1))
+        self.conv2b = weight_norm(nn.Conv2d(256, 256, 3, padding=1))
+        self.conv2c = weight_norm(nn.Conv2d(256, 256, 3, padding=1))
+        self.conv3a = weight_norm(nn.Conv2d(256, 512, 3, padding=0))
+        self.conv3b = weight_norm(nn.Conv2d(512, 256, 1, padding=1))
+        self.conv3c = weight_norm(nn.Conv2d(256, 128, 1, padding=1))
         self.mp = nn.MaxPool2d(2, stride=2, padding=1)
         self.fc = nn.Linear(4608, 10)
 
@@ -61,7 +60,8 @@ class CNN(nn.Module):
         return x
 
 
-model = CNN(config_.batch_size, config_.std, p=0.5, fm1=16, fm2=32)
+model = CNN(config_.batch_size, config_.std)
+print(model)
 # metrics
 accs = []
 accs_best = []

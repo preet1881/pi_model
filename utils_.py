@@ -30,12 +30,13 @@ def prepare_CIFAR10():
     m = (0.5,)
     st = (0.5,)
     normalize = tf.Normalize(m, st)
-
+    transform_train = tf.Compose(
+        [tf.RandomHorizontalFlip(), tf.RandomRotation(30), tf.ToTensor(), normalize])
     # load train data
     train_dataset = datasets.CIFAR10(
         root='../data',
         train=True,
-        transform=tf.Compose([tf.ToTensor(), normalize]),
+        transform=transform_train,
         download=True)
 
     # load test data
