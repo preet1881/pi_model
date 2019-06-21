@@ -42,8 +42,9 @@ def prepare_CIFAR10(data_dir, normalize):
 
 
 class DataFolder(Dataset):
-    def __init__(self, data, labels, transforms):
+    def __init__(self, data, labels, transforms,pi =True):
         self.to_pil     = tf.ToPILImage()
+        self.pi= pi
         self.data       = data
         self.targets    = labels - 1
         self.transforms = transforms
@@ -56,10 +57,19 @@ class DataFolder(Dataset):
         """Reads an image from a file and preprocesses it and returns."""
         data   = self.data[index]
         data   = self.to_pil(data)# THIS IS NOW A PIL TENSOR
+        data_A = data.clone()
         if self.transforms is not None:
             data = self.transforms(data)
+            data_A = self.transforms(data_A)
         labels = int(self.targets[index])
+        return (data,data_A), labels
+
         return data, labels
+
+
+
+
+
 
 def prepare_CIFAR10_MAT(file_name):
     DATA   = loadmat(file_name)
