@@ -51,8 +51,7 @@ class CNN(nn.Module):
         x = self.act(self.conv3c(x))
         x = self.mp(x)
 
-        # x = self.act(self.mp(self.conv1(x)))
-        # x = self.act(self.mp(self.conv2(x)))
+    
 
         x = x.view(batch_size, -1)
         x = self.fc(x)
@@ -85,7 +84,7 @@ for i in range(cfg['loops']):
 
     model = CNN(cfg['batch_size'],cfg['std'])
     seed = cfg['seeds'][i]
-    acc, acc_best ,l, sl, usl,indices =train(model,seed,**cfg)
+    acc, acc_best ,l, sl, usl,indices =train(model,**cfg)
     accs.append(acc)
     accs_best.append(acc_best)
     losses.append(l)

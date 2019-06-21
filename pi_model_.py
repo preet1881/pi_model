@@ -8,7 +8,7 @@ from utils_ import calc_metrics, prepare_mnist, weight_schedule ,prepare_CIFAR10
 
 #data loader
 def sample_train(train_dataset, test_dataset , batch_size ,
-                 labeled_data , n_classes,seed, shuffle_train= True ,return_idxs = True):
+                 labeled_data , n_classes, shuffle_train= True ,return_idxs = True):
 
 
                  n = len(train_dataset)
@@ -20,7 +20,7 @@ def sample_train(train_dataset, test_dataset , batch_size ,
 
                  for i in range(n_classes):
                      train_dataset.targets = torch.Tensor(train_dataset.targets)
-                     class_items = (train_dataset.targets == i).nonzero()   #for mnist we use train_labels to read the lables but for cifar this gives error
+                     class_items = (train_dataset.targets == i).nonzero()
                      n_class = len(class_items)
                      rd = np.random.permutation(np.arange(n_class))
 
@@ -74,8 +74,8 @@ def temporal_loss(out1, out2 , w , labels):
 
 
 #change num_epochs for better training here and in config_ too
-def train( model , seed , labeled_data =4000 , alpha =0.6 , lr = 0.002 , beta2 =0.99
-           , num_epochs =300 , batch_size =100, drop =0.5 , std =0.15 , fm1=16 ,fm2 =32, divide_by_bs = False
+def train( model  , labeled_data =4000 , alpha =0.6 , lr = 0.002 , beta2 =0.99
+           , num_epochs =300 , batch_size =100, drop =0.5 , std =0.15 , divide_by_bs = False
            , w_norm = False , data_norm= 'pixelwise', early_stop = None, c=250 , n_classes =10 , max_epochs=80,
            max_val= 30. , ramp_up_mult= -5 , n_samples= 60000 , print_res=True , **kwargs):
 
@@ -86,7 +86,7 @@ def train( model , seed , labeled_data =4000 , alpha =0.6 , lr = 0.002 , beta2 =
 
            #make data loaders
            train_loader, test_loader, indices = sample_train(train_dataset, test_dataset, batch_size,
-                                                             labeled_data, n_classes, seed, shuffle_train=False)
+                                                             labeled_data, n_classes, shuffle_train=False)
 
            # setup param optimization
            optimizer = torch.optim.Adam(model.parameters(), lr=lr, betas=(0.9, 0.99))
@@ -109,9 +109,7 @@ def train( model , seed , labeled_data =4000 , alpha =0.6 , lr = 0.002 , beta2 =
 
                if(epoch+1)% 10 ==0:
                    print('unsupervised loss weight : {}'.format([w]))
-
-               w = torch.autograd.Variable(torch.FloatTensor([w]), requires_grad = False)
-
+               
                l = []
                supl=[]
                unsupl=[]
@@ -120,13 +118,13 @@ def train( model , seed , labeled_data =4000 , alpha =0.6 , lr = 0.002 , beta2 =
                    labels = Variable(labels, requires_grad = False)
                    if i+1==500:
                        print(epoch+1)
-                   #get output and calculate loss
+                   # calculate loss and apply pi algo by out(z) out2(zcap)
                    optimizer.zero_grad()
-                   out = model(images)
-                   zcomp = Variable(z[i*batch_size:(i+1)*batch_size], requires_grad = False)
-                   loss , suploss , unsuploss , number_of_labels = temporal_loss(out , zcomp,w , labels)
-                   #save output and losses
-                   outputs[i* batch_size : (i+1)*batch_size]= out.data.clone()
+                   out1 = model(images)   #z
+                   out2= model(images)    #zcap
+                   loss , suploss , unsuploss , number_of_labels = temporal_loss(out1 , out2,w , labels)
+                   
+                   #save and losses
                    l.append(loss.item())
                    supl.append(number_of_labels*suploss.item())
                    unsupl.append(unsuploss.item())
