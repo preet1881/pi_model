@@ -20,6 +20,21 @@ def ramp_up(epoch , max_epochs ,max_val , mult):
          return max_val
     return max_val * np.exp(mult * (1. - float(epoch) / max_epochs) ** 2)   #return as proposed in the paper
 
+
+def lr_up(epoch, max_epochs,num_epochs,mult=-5):     #learning rates change
+  if epoch <max_epochs:
+    return np.exp(mult*(1.- float(epoch)/max_epochs)**2)
+  if max_epochs<epoch<(num_epochs-50):
+    return 1.0
+
+def lr_down(epoch,num_epochs,epoch_down=50,mult=-12.5):
+  if epoch >num_epochs-epoch_down:
+    ep= (num_epochs-epoch_down)*0.5
+    return np.exp(-ep*ep/epoch_down)
+  else :
+    return 1.0
+
+
 def weight_schedule(epoch ,max_epochs, max_val , mult , n_labeled, n_samples):
     max_val = max_val * (float(n_labeled/n_samples))
     return ramp_up(epoch , max_epochs, max_val, mult)
